@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Plus, Minus, Trash2, Truck, Package, Shield } from 'lucide-react';
-import { useCart } from '../lib/cart';
+import { useCart } from '../hooks/useCart';
 
 const Carrito = () => {
   const { 

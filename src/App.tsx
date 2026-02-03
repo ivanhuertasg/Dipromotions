@@ -1,13 +1,23 @@
+// =============================================
+// APP PRINCIPAL - diPromotions
+// =============================================
+
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
+
+// Layout
 import TopBar from './sections/TopBar';
 import Header from './sections/Header';
 import Footer from './sections/Footer';
+
+// Pages
 import Home from './pages/Home';
 import Catalogo from './pages/Catalogo';
 import Contacto from './pages/Contacto';
 import Carrito from './pages/Carrito';
 import Producto from './pages/Producto';
+import Checkout from './pages/Checkout';
 import {
   BestSeller,
   FabricadoUE,
@@ -26,7 +36,7 @@ import {
 function App() {
   const [currentLang, setCurrentLang] = useState('ES');
 
-  // Load saved language preference
+  // Cargar idioma guardado
   useEffect(() => {
     const savedLang = localStorage.getItem('dipromotions_lang');
     if (savedLang) {
@@ -35,17 +45,38 @@ function App() {
     }
   }, []);
 
+  // Escuchar cambios de idioma globales
+  useEffect(() => {
+    const handleLangChange = (e: CustomEvent<{ language: string }>) => {
+      setCurrentLang(e.detail.language);
+    };
+
+    window.addEventListener('languageChanged', handleLangChange as EventListener);
+    return () => window.removeEventListener('languageChanged', handleLangChange as EventListener);
+  }, []);
+
   return (
     <Router>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white flex flex-col">
+        {/* Top Bar con selector de idioma */}
         <TopBar currentLang={currentLang} onLangChange={setCurrentLang} />
+        
+        {/* Header principal con navegación */}
         <Header />
-        <main>
+        
+        {/* Contenido principal */}
+        <main className="flex-1">
           <Routes>
+            {/* Páginas principales */}
             <Route path="/" element={<Home />} />
             <Route path="/catalogo" element={<Catalogo />} />
+            <Route path="/catalogo/:category" element={<Catalogo />} />
             <Route path="/producto/:slug" element={<Producto />} />
             <Route path="/carrito" element={<Carrito />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/contacto" element={<Contacto />} />
+            
+            {/* Subpáginas de categorías */}
             <Route path="/best-seller" element={<BestSeller />} />
             <Route path="/fabricado-ue" element={<FabricadoUE />} />
             <Route path="/reciclado" element={<Reciclado />} />
@@ -57,11 +88,29 @@ function App() {
             <Route path="/novedades" element={<Novedades />} />
             <Route path="/navidad" element={<Navidad />} />
             <Route path="/yourchoice" element={<Yourchoice />} />
+            
+            {/* Legal */}
             <Route path="/nota-legal" element={<NotaLegal />} />
-            <Route path="/contacto" element={<Contacto />} />
+            
+            {/* 404 - Redirigir a home */}
+            <Route path="*" element={<Home />} />
           </Routes>
         </main>
+        
+        {/* Footer */}
         <Footer />
+        
+        {/* Toast notifications */}
+        <Toaster 
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: '#333',
+              color: '#fff',
+              borderRadius: '12px',
+            },
+          }}
+        />
       </div>
     </Router>
   );

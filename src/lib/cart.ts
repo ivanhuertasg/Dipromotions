@@ -1,9 +1,15 @@
 // =============================================
-// SERVICIO DE CARRITO
+// SERVICIO DE CARRITO - diPromotions
 // =============================================
+// Carrito persistente con localStorage
+// Soporta precios escalonados B2B
+// Patrón Observer para reactividad
 
-import { ProductService } from './supabase';
+import { ProductService, type Product } from './supabase';
 
+// =============================================
+// TIPOS
+// =============================================
 export interface CartItem {
   id: string;
   product_id: string;
@@ -13,6 +19,7 @@ export interface CartItem {
     slug: string;
     sku: string;
     base_price: number;
+    sale_price?: number | null;
     images: Array<{
       image_url: string;
       is_primary: boolean;
@@ -22,7 +29,7 @@ export interface CartItem {
   };
   quantity: number;
   unit_price: number;
-  customization_data?: any;
+  customization_data?: Record<string, unknown>;
 }
 
 export interface CartTotals {
@@ -34,75 +41,126 @@ export interface CartTotals {
   total: number;
 }
 
-// Local storage key
+// =============================================
+// CONSTANTES
+// =============================================
 const CART_STORAGE_KEY = 'dipromotions_cart';
+const FREE_SHIPPING_THRESHOLD = 50000; // 500€ en céntimos
+const SHIPPING_COST = 995; // 9.95€
+const TAX_RATE = 0.21; // 21% IVA
 
+// =============================================
+// CLASE CART SERVICE
+// =============================================
 class CartServiceClass {
   private items: CartItem[] = [];
-  private listeners: Array<(totals: CartTotals) => void> = [];
+  private listeners: Set<(totals: CartTotals) => void> = new Set();
+  private initialized = false;
 
   constructor() {
     this.loadFromStorage();
   }
 
-  // Load cart from localStorage
-  private loadFromStorage() {
+  // =============================================
+  // PERSISTENCIA
+  // =============================================
+  
+  private loadFromStorage(): void {
+    if (typeof window === 'undefined') return;
+    
     try {
       const stored = localStorage.getItem(CART_STORAGE_KEY);
       if (stored) {
-        this.items = JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        // Validar estructura básica
+        if (Array.isArray(parsed)) {
+          this.items = parsed.filter(item => 
+            item.id && 
+            item.product_id && 
+            item.product && 
+            typeof item.quantity === 'number'
+          );
+        }
       }
-    } catch (e) {
-      console.error('Error loading cart:', e);
+      this.initialized = true;
+    } catch (error) {
+      console.error('[Cart] Error loading from storage:', error);
       this.items = [];
+      this.initialized = true;
     }
   }
 
-  // Save cart to localStorage
-  private saveToStorage() {
+  private saveToStorage(): void {
+    if (typeof window === 'undefined') return;
+    
     try {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(this.items));
-    } catch (e) {
-      console.error('Error saving cart:', e);
+    } catch (error) {
+      console.error('[Cart] Error saving to storage:', error);
     }
   }
 
-  // Notify listeners
-  private notifyListeners() {
-    const totals = this.getTotals();
-    this.listeners.forEach(listener => listener(totals));
+  // =============================================
+  // OBSERVER PATTERN
+  // =============================================
+  
+  /**
+   * Suscribirse a cambios del carrito
+   * @returns Función para cancelar suscripción
+   */
+  subscribe(listener: (totals: CartTotals) => void): () => void {
+    this.listeners.add(listener);
     
-    // Dispatch global event
-    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: totals }));
-  }
-
-  // Subscribe to cart changes
-  subscribe(listener: (totals: CartTotals) => void) {
-    this.listeners.push(listener);
-    // Return current totals immediately
+    // Enviar estado actual inmediatamente
     listener(this.getTotals());
     
-    // Return unsubscribe function
+    // Devolver función para cancelar suscripción
     return () => {
-      this.listeners = this.listeners.filter(l => l !== listener);
+      this.listeners.delete(listener);
     };
   }
 
-  // Get all cart items with full product data
-  getItems(): CartItem[] {
-    return this.items;
+  private notifyListeners(): void {
+    const totals = this.getTotals();
+    
+    // Notificar a todos los listeners
+    this.listeners.forEach(listener => {
+      try {
+        listener(totals);
+      } catch (error) {
+        console.error('[Cart] Error in listener:', error);
+      }
+    });
+    
+    // Emitir evento global para componentes no-React
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cartUpdated', { detail: totals }));
+    }
   }
 
-  // Get cart totals
+  // =============================================
+  // LECTURA
+  // =============================================
+  
+  /**
+   * Obtiene todos los items del carrito
+   */
+  getItems(): CartItem[] {
+    return [...this.items];
+  }
+
+  /**
+   * Obtiene los totales del carrito
+   */
   getTotals(): CartTotals {
     const itemCount = this.items.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = this.items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
-    const shipping = subtotal >= 50000 ? 0 : 500; // Free shipping over 500€
-    const tax = Math.round(subtotal * 0.21); // 21% IVA
+    const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : (itemCount > 0 ? SHIPPING_COST : 0);
+    const tax = Math.round(subtotal * TAX_RATE);
     const total = subtotal + shipping + tax;
 
     return {
-      items: this.items,
+      items: [...this.items],
       itemCount,
       subtotal,
       shipping,
@@ -111,40 +169,74 @@ class CartServiceClass {
     };
   }
 
-  // Add item to cart
-  async addItem(productId: string, quantity: number = 1, customizationData?: any) {
-    // Get product data
-    const product = await ProductService.getBySlug(productId);
+  /**
+   * Comprueba si un producto está en el carrito
+   */
+  hasItem(productId: string): boolean {
+    return this.items.some(item => item.product_id === productId);
+  }
+
+  /**
+   * Obtiene la cantidad de un producto en el carrito
+   */
+  getItemQuantity(productId: string): number {
+    const item = this.items.find(item => item.product_id === productId);
+    return item?.quantity || 0;
+  }
+
+  // =============================================
+  // ESCRITURA
+  // =============================================
+  
+  /**
+   * Añade un producto al carrito
+   * @param productSlug - Slug del producto
+   * @param quantity - Cantidad a añadir
+   * @param customizationData - Datos de personalización opcionales
+   */
+  async addItem(
+    productSlug: string, 
+    quantity: number = 1, 
+    customizationData?: Record<string, unknown>
+  ): Promise<CartTotals> {
+    // Obtener datos del producto
+    const product = await ProductService.getBySlug(productSlug);
     
     if (!product) {
       throw new Error('Producto no encontrado');
     }
 
-    // Check minimum quantity
+    // Validar cantidad mínima
     if (quantity < product.min_quantity) {
       throw new Error(`Cantidad mínima: ${product.min_quantity} unidades`);
     }
 
-    // Check stock
+    // Validar stock
     if (product.stock_quantity < quantity) {
       throw new Error(`Stock insuficiente. Disponible: ${product.stock_quantity} unidades`);
     }
 
-    // Calculate price based on quantity
+    // Calcular precio unitario según cantidad
     const unitPrice = ProductService.calculatePrice(product, quantity);
 
-    // Check if item already exists
+    // Buscar item existente (mismo producto y misma personalización)
+    const customizationKey = JSON.stringify(customizationData || {});
     const existingIndex = this.items.findIndex(
       item => item.product_id === product.id && 
-      JSON.stringify(item.customization_data) === JSON.stringify(customizationData)
+              JSON.stringify(item.customization_data || {}) === customizationKey
     );
 
     if (existingIndex >= 0) {
-      // Update existing item
+      // Actualizar item existente
       const existingItem = this.items[existingIndex];
       const newQuantity = existingItem.quantity + quantity;
       
-      // Recalculate price for new quantity
+      // Validar stock total
+      if (product.stock_quantity < newQuantity) {
+        throw new Error(`Stock insuficiente. Máximo disponible: ${product.stock_quantity} unidades`);
+      }
+      
+      // Recalcular precio para la nueva cantidad
       const newUnitPrice = ProductService.calculatePrice(product, newQuantity);
       
       this.items[existingIndex] = {
@@ -153,9 +245,9 @@ class CartServiceClass {
         unit_price: newUnitPrice
       };
     } else {
-      // Add new item
+      // Crear nuevo item
       const newItem: CartItem = {
-        id: `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: `cart_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
         product_id: product.id,
         product: {
           id: product.id,
@@ -163,6 +255,7 @@ class CartServiceClass {
           slug: product.slug,
           sku: product.sku,
           base_price: product.base_price,
+          sale_price: product.sale_price,
           images: product.images || [],
           min_quantity: product.min_quantity,
           quantity_step: product.quantity_step
@@ -181,8 +274,12 @@ class CartServiceClass {
     return this.getTotals();
   }
 
-  // Update item quantity
-  async updateQuantity(itemId: string, quantity: number) {
+  /**
+   * Actualiza la cantidad de un item
+   * @param itemId - ID del item en el carrito
+   * @param quantity - Nueva cantidad
+   */
+  async updateQuantity(itemId: string, quantity: number): Promise<CartTotals> {
     const itemIndex = this.items.findIndex(item => item.id === itemId);
     
     if (itemIndex < 0) {
@@ -190,22 +287,33 @@ class CartServiceClass {
     }
 
     const item = this.items[itemIndex];
-    
-    // Check minimum quantity
+
+    // Validar cantidad mínima
     if (quantity < item.product.min_quantity) {
       throw new Error(`Cantidad mínima: ${item.product.min_quantity} unidades`);
     }
 
-    // Get fresh product data for price calculation
+    // Obtener datos actualizados del producto para el precio
     const product = await ProductService.getBySlug(item.product.slug);
     
     if (product) {
-      const unitPrice = ProductService.calculatePrice(product, quantity);
+      // Validar stock
+      if (product.stock_quantity < quantity) {
+        throw new Error(`Stock insuficiente. Disponible: ${product.stock_quantity} unidades`);
+      }
+      
+      const newUnitPrice = ProductService.calculatePrice(product, quantity);
       
       this.items[itemIndex] = {
         ...item,
         quantity,
-        unit_price: unitPrice
+        unit_price: newUnitPrice
+      };
+    } else {
+      // Si no se puede obtener el producto, solo actualizar cantidad
+      this.items[itemIndex] = {
+        ...item,
+        quantity
       };
     }
 
@@ -215,17 +323,26 @@ class CartServiceClass {
     return this.getTotals();
   }
 
-  // Remove item from cart
-  removeItem(itemId: string) {
+  /**
+   * Elimina un item del carrito
+   * @param itemId - ID del item a eliminar
+   */
+  removeItem(itemId: string): CartTotals {
+    const initialLength = this.items.length;
     this.items = this.items.filter(item => item.id !== itemId);
-    this.saveToStorage();
-    this.notifyListeners();
+    
+    if (this.items.length !== initialLength) {
+      this.saveToStorage();
+      this.notifyListeners();
+    }
     
     return this.getTotals();
   }
 
-  // Clear cart
-  clearCart() {
+  /**
+   * Vacía el carrito completamente
+   */
+  clearCart(): CartTotals {
     this.items = [];
     this.saveToStorage();
     this.notifyListeners();
@@ -233,7 +350,13 @@ class CartServiceClass {
     return this.getTotals();
   }
 
-  // Format price for display
+  // =============================================
+  // UTILIDADES
+  // =============================================
+  
+  /**
+   * Formatea un precio en céntimos a formato de moneda
+   */
   formatPrice(cents: number): string {
     return (cents / 100).toLocaleString('es-ES', {
       style: 'currency',
@@ -241,46 +364,33 @@ class CartServiceClass {
     });
   }
 
-  // Get primary image URL for a product
+  /**
+   * Obtiene la URL de la imagen principal de un producto
+   */
   getProductImage(product: CartItem['product']): string {
     const primaryImage = product.images?.find(img => img.is_primary);
-    return primaryImage?.image_url || '/images/placeholder.jpg';
+    return primaryImage?.image_url || product.images?.[0]?.image_url || '/images/placeholder.jpg';
+  }
+
+  /**
+   * Verifica si el carrito cumple los requisitos para envío gratis
+   */
+  hasFreeShipping(): boolean {
+    const { subtotal } = this.getTotals();
+    return subtotal >= FREE_SHIPPING_THRESHOLD;
+  }
+
+  /**
+   * Calcula cuánto falta para envío gratis
+   */
+  amountForFreeShipping(): number {
+    const { subtotal } = this.getTotals();
+    return Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   }
 }
 
-// Export singleton instance
+// Exportar instancia singleton
 export const CartService = new CartServiceClass();
 
-// =============================================
-// HOOK PARA REACT
-// =============================================
-import { useState, useEffect } from 'react';
-
-export function useCart() {
-  const [totals, setTotals] = useState<CartTotals>({
-    items: [],
-    itemCount: 0,
-    subtotal: 0,
-    shipping: 0,
-    tax: 0,
-    total: 0
-  });
-
-  useEffect(() => {
-    // Subscribe to cart changes
-    const unsubscribe = CartService.subscribe(setTotals);
-    
-    // Cleanup on unmount
-    return unsubscribe;
-  }, []);
-
-  return {
-    ...totals,
-    addItem: CartService.addItem.bind(CartService),
-    updateQuantity: CartService.updateQuantity.bind(CartService),
-    removeItem: CartService.removeItem.bind(CartService),
-    clearCart: CartService.clearCart.bind(CartService),
-    formatPrice: CartService.formatPrice.bind(CartService),
-    getProductImage: CartService.getProductImage.bind(CartService)
-  };
-}
+// Exportar constantes para uso externo
+export { FREE_SHIPPING_THRESHOLD, SHIPPING_COST, TAX_RATE };
