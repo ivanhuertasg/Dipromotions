@@ -214,7 +214,7 @@ const LanguageSelector = ({ currentLang, onLangChange }: LanguageSelectorProps) 
         <div
           ref={overlayRef}
           id="language-modal"
-          className="fixed inset-0 z-[999999] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="lang-modal-title"

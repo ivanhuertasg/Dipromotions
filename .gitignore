@@ -40,6 +40,7 @@ firebase-debug.log*
 !.vscode/extensions.json
 .idea/
 *.suo
+.env.example
 *.ntvs*
 *.njsproj
 *.sln
