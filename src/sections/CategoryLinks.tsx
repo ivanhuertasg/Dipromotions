@@ -2,50 +2,29 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 interface Category {
-  id: number;
-  title: string;
-  highlight: string;
-  image: string;
-  badgeColor: string;
-  link: string;
+  name: string;
+  href: string;
+  icon: string;
 }
 
-const categories: Category[] = [
-  {
-    id: 1,
-    title: 'product',
-    highlight: 'recycled',
-    image: '/images/product-recycled.jpg',
-    badgeColor: 'bg-green-500',
-    link: '/reciclado',
-  },
-  {
-    id: 2,
-    title: 'product',
-    highlight: 'outlet',
-    image: '/images/product-outlet.jpg',
-    badgeColor: 'bg-red-500',
-    link: '/outlet',
-  },
-  {
-    id: 3,
-    title: 'product',
-    highlight: 'especiales',
-    image: '/images/product-especiales.jpg',
-    badgeColor: 'bg-blue-500',
-    link: '/especiales',
-  },
-  {
-    id: 4,
-    title: 'product',
-    highlight: 'promotion',
-    image: '/images/product-promotion.jpg',
-    badgeColor: 'bg-pink-500',
-    link: '/promociones',
-  },
+interface CategoryLinksProps {
+  title?: string;
+  categories?: Category[];
+}
+
+const defaultCategories: Category[] = [
+  { name: 'Best Seller', href: '/best-seller', icon: '⭐' },
+  { name: 'Yourchoice', href: '/yourchoice', icon: '✨' },
+  { name: 'Fabricado UE', href: '/fabricado-ue', icon: '🇪🇺' },
+  { name: 'Reciclado', href: '/reciclado', icon: '♻️' },
+  { name: 'USB Stock', href: '/usb', icon: '💾' },
+  { name: 'Outlet', href: '/outlet', icon: '🏷️' },
+  { name: 'Especiales', href: '/especiales', icon: '🎁' },
+  { name: 'Promociones', href: '/promociones', icon: '🔥' },
+  { name: 'Novedades', href: '/novedades', icon: '🆕' },
 ];
 
-const CategoryLinks = () => {
+const CategoryLinks = ({ title, categories = defaultCategories }: CategoryLinksProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -70,57 +49,31 @@ const CategoryLinks = () => {
   return (
     <section 
       ref={sectionRef}
-      className="relative z-20 -mt-20 pb-16"
+      className="py-16 bg-gray-50"
     >
       <div className="section-container">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {title && (
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
+            {title}
+          </h2>
+        )}
+        <div className="flex flex-wrap justify-center gap-4">
           {categories.map((category, index) => (
             <Link
-              key={category.id}
-              to={category.link}
-              className={`group relative bg-white rounded-2xl overflow-hidden shadow-lg transition-all duration-500 hover:shadow-2xl ${
+              key={category.name}
+              to={category.href}
+              className={`group flex items-center gap-3 px-6 py-4 bg-white rounded-full shadow-md transition-all duration-300 hover:shadow-lg hover:bg-[#e30614] hover:text-white ${
                 isVisible 
                   ? 'opacity-100 translate-y-0' 
-                  : 'opacity-0 translate-y-20'
+                  : 'opacity-0 translate-y-10'
               }`}
               style={{ 
                 transitionTimingFunction: 'var(--ease-out-expo)',
-                transitionDelay: `${index * 100}ms`,
-                transform: isVisible 
-                  ? `translateY(${index % 2 === 0 ? '-10px' : '0'})` 
-                  : 'translateY(80px)'
+                transitionDelay: `${index * 50}ms`
               }}
             >
-              {/* Badge */}
-              <div 
-                className={`absolute top-4 right-4 ${category.badgeColor} text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10 transition-transform duration-400 ${
-                  isVisible ? 'scale-100' : 'scale-0'
-                }`}
-                style={{ 
-                  transitionTimingFunction: 'var(--ease-elastic)',
-                  transitionDelay: `${500 + index * 100}ms`
-                }}
-              >
-                {category.highlight}
-              </div>
-
-              {/* Image */}
-              <div className="aspect-square overflow-hidden">
-                <img
-                  src={category.image}
-                  alt={category.highlight}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-
-              {/* Title */}
-              <div className="p-4 text-center">
-                <span className="text-gray-500 text-sm">{category.title} </span>
-                <span className="text-gray-900 font-bold text-lg">{category.highlight}</span>
-              </div>
-
-              {/* Hover Effect Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="text-2xl">{category.icon}</span>
+              <span className="font-medium">{category.name}</span>
             </Link>
           ))}
         </div>

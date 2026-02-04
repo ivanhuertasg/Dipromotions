@@ -1,4 +1,4 @@
-import PageTemplate from './PageTemplate';
+import PageTemplate from '../sections/PageTemplate';
 
 // Best Seller Page
 export const BestSeller = () => (

@@ -3,36 +3,35 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Slide {
-  id: number;
+  id?: string;
   title: string;
-  description: string;
-  subDescription?: string;
+  subtitle?: string;
   cta: string;
   ctaLink: string;
-  image: string;
+  image?: string;
 }
 
-const slides: Slide[] = [
+interface HeroSliderProps {
+  slides?: Slide[];
+}
+
+// Default slides (fallback)
+const defaultSlides: Slide[] = [
   {
-    id: 1,
     title: 'Lanyard sublimados',
-    description: 'Hechos a medida de forma experta y directa en nuestras fábricas, con la imagen que desees, impresión disponible en las dos caras, elige hebilla desmontable, cierre de seguridad e clip metálico.',
-    subDescription: 'Inspírate y explora un nuevo mundo de regalos personalizados, a medida con yourChoice.',
+    subtitle: 'Hechos a medida de forma experta y directa en nuestras fábricas, con la imagen que desees.',
     cta: 'Lanyards sublimados',
     ctaLink: '/yourchoice',
-    image: '/images/hero-lanyard.jpg',
   },
   {
-    id: 2,
     title: 'Uniformes médicos',
-    description: 'Conoce nuestra amplia variedad de prendas diseñadas para el trabajo en clínica, laboratorio y centros de estética. Cada prenda ha sido cuidadosamente confeccionada teniendo en cuenta los rigurosos estándares de ergonomía para brindarte el máximo bienestar y libertad de movimiento durante tus jornadas de trabajo.',
+    subtitle: 'Conoce nuestra amplia variedad de prendas diseñadas para el trabajo en clínica.',
     cta: 'Casaca | Bata',
     ctaLink: '/catalogo',
-    image: '/images/hero-medical.jpg',
   },
 ];
 
-const HeroSlider = () => {
+const HeroSlider = ({ slides = defaultSlides }: HeroSliderProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -115,35 +114,20 @@ const HeroSlider = () => {
                 {slide.title}
               </h2>
               
-              {/* Description */}
-              <p 
-                className={`text-base md:text-lg leading-relaxed mb-4 transition-all duration-500 ${
-                  isLoaded && index === currentSlide 
-                    ? 'opacity-100 translate-y-0' 
-                    : 'opacity-0 translate-y-10'
-                }`}
-                style={{ 
-                  transitionTimingFunction: 'var(--ease-out-quart)',
-                  transitionDelay: '800ms'
-                }}
-              >
-                {slide.description}
-              </p>
-              
-              {/* Sub Description */}
-              {slide.subDescription && (
+              {/* Subtitle */}
+              {slide.subtitle && (
                 <p 
-                  className={`text-sm md:text-base text-white/80 mb-8 transition-all duration-500 ${
+                  className={`text-base md:text-lg leading-relaxed mb-8 transition-all duration-500 ${
                     isLoaded && index === currentSlide 
                       ? 'opacity-100 translate-y-0' 
                       : 'opacity-0 translate-y-10'
                   }`}
                   style={{ 
                     transitionTimingFunction: 'var(--ease-out-quart)',
-                    transitionDelay: '900ms'
+                    transitionDelay: '800ms'
                   }}
                 >
-                  {slide.subDescription}
+                  {slide.subtitle}
                 </p>
               )}
               

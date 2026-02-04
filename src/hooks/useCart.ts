@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { CartService, type CartTotals, type CartItem } from '../lib/cart';
+import type { Product } from '../lib/supabase';
 
 interface UseCartReturn extends CartTotals {
   // Estado
@@ -12,6 +13,7 @@ interface UseCartReturn extends CartTotals {
   
   // Acciones
   addItem: (productSlug: string, quantity?: number, customizationData?: Record<string, unknown>) => Promise<void>;
+  addProduct: (product: Product, quantity?: number, customizationData?: Record<string, unknown>) => void;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   removeItem: (itemId: string) => void;
   clearCart: () => void;
@@ -54,7 +56,7 @@ export function useCart(): UseCartReturn {
     }
   }, [error]);
 
-  // Añadir item
+  // Añadir item por slug
   const addItem = useCallback(async (
     productSlug: string, 
     quantity: number = 1, 
@@ -65,6 +67,26 @@ export function useCart(): UseCartReturn {
     
     try {
       await CartService.addItem(productSlug, quantity, customizationData);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al añadir al carrito';
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Añadir producto directamente (para productos de demostración)
+  const addProduct = useCallback((
+    product: Product,
+    quantity: number = 1,
+    customizationData?: Record<string, unknown>
+  ) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      CartService.addProduct(product, quantity, customizationData);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al añadir al carrito';
       setError(message);
@@ -107,6 +129,7 @@ export function useCart(): UseCartReturn {
     isLoading,
     error,
     addItem,
+    addProduct,
     updateQuantity,
     removeItem,
     clearCart,

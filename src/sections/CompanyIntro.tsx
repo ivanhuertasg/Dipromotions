@@ -1,6 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-const CompanyIntro = () => {
+interface CompanyIntroProps {
+  title?: string;
+  description?: string;
+  features?: string[];
+  cta?: string;
+  ctaLink?: string;
+}
+
+const CompanyIntro = ({ 
+  title = 'Ofrecemos el regalo personalizado perfecto',
+  description = 'DIPROMOTIONS ofrece capacidades de impresión de las más avanzadas en cuanto a opciones de personalización, así como plazos de entrega y niveles de stock inmejorables.',
+  features = [],
+  cta = 'Conócenos mejor',
+  ctaLink = '/contacto'
+}: CompanyIntroProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -22,7 +37,7 @@ const CompanyIntro = () => {
     return () => observer.disconnect();
   }, []);
 
-  const words = 'Ofrecemos el regalo personalizado perfecto'.split(' ');
+  const words = title.split(' ');
 
   return (
     <section 
@@ -64,25 +79,52 @@ const CompanyIntro = () => {
                 transitionDelay: '400ms'
               }}
             >
-              <span className="font-semibold text-gray-900">DIPROMOTIONS</span> ofrece capacidades de impresión de las más avanzadas en cuanto a{' '}
-              <span className="font-semibold text-[#e30614]">opciones de personalización</span>, así como{' '}
-              <span className="font-semibold text-[#e30614]">plazos de entrega y niveles de stock inmejorables</span>.
-            </p>
-            
-            <p 
-              className={`transition-all duration-500 ${
-                isVisible 
-                  ? 'opacity-100 translate-y-0' 
-                  : 'opacity-0 translate-y-5'
-              }`}
-              style={{ 
-                transitionTimingFunction: 'var(--ease-out-quart)',
-                transitionDelay: '480ms'
-              }}
-            >
-              Nuestro <span className="font-semibold text-[#e30614]">servicio de impresión en 24 horas</span> es único en el sector y nos permite cumplir incluso los plazos más exigentes. Además, ofrecemos mucho más que nuestra gama de stock europeo, también llevamos la personalización a un siguiente nivel.
+              {description}
             </p>
           </div>
+
+          {/* CTA Button */}
+          <div 
+            className={`mt-8 transition-all duration-500 ${
+              isVisible 
+                ? 'opacity-100 translate-y-0' 
+                : 'opacity-0 translate-y-5'
+            }`}
+            style={{ 
+              transitionTimingFunction: 'var(--ease-out-quart)',
+              transitionDelay: '500ms'
+            }}
+          >
+            <Link 
+              to={ctaLink}
+              className="inline-block px-8 py-3 bg-[#e30614] text-white font-semibold rounded-lg hover:bg-[#c7000b] transition-colors duration-300"
+            >
+              {cta}
+            </Link>
+          </div>
+
+          {/* Features List */}
+          {features.length > 0 && (
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {features.map((feature, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center gap-2 p-4 bg-gray-50 rounded-lg transition-all duration-500 ${
+                    isVisible 
+                      ? 'opacity-100 translate-y-0' 
+                      : 'opacity-0 translate-y-5'
+                  }`}
+                  style={{ 
+                    transitionTimingFunction: 'var(--ease-out-quart)',
+                    transitionDelay: `${500 + index * 100}ms`
+                  }}
+                >
+                  <span className="text-[#e30614]">✓</span>
+                  <span className="text-gray-700">{feature}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Decorative Elements */}
           <div className="mt-12 flex justify-center gap-8">

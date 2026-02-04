@@ -3,7 +3,7 @@
 // =============================================
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Truck, Shield, Check, Package } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 
@@ -45,7 +45,6 @@ const initialFormData: FormData = {
 };
 
 const Checkout = () => {
-  const navigate = useNavigate();
   const { items, itemCount, subtotal, shipping, tax, total, formatPrice, getProductImage } = useCart();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [step, setStep] = useState<'info' | 'shipping' | 'payment' | 'confirmation'>('info');

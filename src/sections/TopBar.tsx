@@ -1,10 +1,14 @@
+// =============================================
+// TOP BAR - diPromotions
+// =============================================
+
 import { useEffect, useState } from 'react';
 import { Mail } from 'lucide-react';
 import LanguageSelector from '../components/LanguageSelector';
 
 interface TopBarProps {
-  currentLang: string;
-  onLangChange: (lang: string) => void;
+  currentLang?: string;
+  onLangChange?: (lang: string) => void;
 }
 
 const TopBar = ({ currentLang, onLangChange }: TopBarProps) => {
@@ -39,8 +43,11 @@ const TopBar = ({ currentLang, onLangChange }: TopBarProps) => {
           </span>
         </a>
 
-        {/* Language Selector */}
-        <LanguageSelector currentLang={currentLang} onLangChange={onLangChange} />
+        {/* Language Selector - Funciona con o sin props */}
+        <LanguageSelector 
+          currentLang={currentLang} 
+          onLangChange={onLangChange} 
+        />
       </div>
 
       <style>{`

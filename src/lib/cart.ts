@@ -55,7 +55,6 @@ const TAX_RATE = 0.21; // 21% IVA
 class CartServiceClass {
   private items: CartItem[] = [];
   private listeners: Set<(totals: CartTotals) => void> = new Set();
-  private initialized = false;
 
   constructor() {
     this.loadFromStorage();
@@ -82,11 +81,9 @@ class CartServiceClass {
           );
         }
       }
-      this.initialized = true;
     } catch (error) {
       console.error('[Cart] Error loading from storage:', error);
       this.items = [];
-      this.initialized = true;
     }
   }
 
@@ -189,7 +186,7 @@ class CartServiceClass {
   // =============================================
   
   /**
-   * Añade un producto al carrito
+   * Añade un producto al carrito por slug
    * @param productSlug - Slug del producto
    * @param quantity - Cantidad a añadir
    * @param customizationData - Datos de personalización opcionales
@@ -206,6 +203,20 @@ class CartServiceClass {
       throw new Error('Producto no encontrado');
     }
 
+    return this.addProduct(product, quantity, customizationData);
+  }
+
+  /**
+   * Añade un producto directamente al carrito (para productos de demostración)
+   * @param product - Producto completo
+   * @param quantity - Cantidad a añadir
+   * @param customizationData - Datos de personalización opcionales
+   */
+  addProduct(
+    product: Product,
+    quantity: number = 1,
+    customizationData?: Record<string, unknown>
+  ): CartTotals {
     // Validar cantidad mínima
     if (quantity < product.min_quantity) {
       throw new Error(`Cantidad mínima: ${product.min_quantity} unidades`);

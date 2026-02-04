@@ -1,28 +1,145 @@
-import { useEffect, useRef, useState } from 'react';
-import { Search, User, ChevronDown, Menu, X } from 'lucide-react';
+import { useEffect, useRef, useState, useMemo } from 'react';
+import { Search, User, ChevronDown, Menu, X, ShoppingBag } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import MiniCart from '../components/MiniCart';
 
-const mainNavItems = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Catálogo', href: '/catalogo', hasDropdown: true },
-  { label: 'Best Seller', href: '/best-seller' },
-  { label: 'Fabricado UE', href: '/fabricado-ue' },
-  { label: 'Reciclado', href: '/reciclado' },
-  { label: 'USB STOCK', href: '/usb' },
-  { label: 'Outlet', href: '/outlet' },
-  { label: 'Especiales', href: '/especiales' },
-  { label: 'Promociones', href: '/promociones' },
-  { label: 'Congresos', href: '/congresos' },
-  { label: 'Novedades', href: '/novedades' },
-  { label: 'Navidad', href: '/navidad' },
-];
+// Navigation content for each language
+const navContent = {
+  es: {
+    mainNav: [
+      { label: 'Inicio', href: '/' },
+      { label: 'Catálogo', href: '/catalogo', hasDropdown: true },
+      { label: 'Best Seller', href: '/best-seller' },
+      { label: 'Fabricado UE', href: '/fabricado-ue' },
+      { label: 'Reciclado', href: '/reciclado' },
+      { label: 'USB STOCK', href: '/usb' },
+      { label: 'Outlet', href: '/outlet' },
+      { label: 'Especiales', href: '/especiales' },
+      { label: 'Promociones', href: '/promociones' },
+      { label: 'Congresos', href: '/congresos' },
+      { label: 'Novedades', href: '/novedades' },
+      { label: 'Navidad', href: '/navidad' },
+    ],
+    secondaryNav: [
+      { label: 'Yourchoice', href: '/yourchoice', hasDropdown: true },
+      { label: 'Nota legal', href: '/nota-legal' },
+      { label: 'Contacto', href: '/contacto' },
+    ],
+    catalogCta: 'Ver catálogo'
+  },
+  en: {
+    mainNav: [
+      { label: 'Home', href: '/en' },
+      { label: 'Catalog', href: '/en/catalogo', hasDropdown: true },
+      { label: 'Best Seller', href: '/en/best-seller' },
+      { label: 'EU Made', href: '/en/fabricado-ue' },
+      { label: 'Recycled', href: '/en/reciclado' },
+      { label: 'USB STOCK', href: '/en/usb' },
+      { label: 'Outlet', href: '/en/outlet' },
+      { label: 'Specials', href: '/en/especiales' },
+      { label: 'Promotions', href: '/en/promociones' },
+      { label: 'Congress', href: '/en/congresos' },
+      { label: 'New Arrivals', href: '/en/novedades' },
+      { label: 'Christmas', href: '/en/navidad' },
+    ],
+    secondaryNav: [
+      { label: 'Yourchoice', href: '/en/yourchoice', hasDropdown: true },
+      { label: 'Legal Notice', href: '/en/nota-legal' },
+      { label: 'Contact', href: '/en/contacto' },
+    ],
+    catalogCta: 'View catalog'
+  },
+  fr: {
+    mainNav: [
+      { label: 'Accueil', href: '/fr' },
+      { label: 'Catalogue', href: '/fr/catalogo', hasDropdown: true },
+      { label: 'Best Seller', href: '/fr/best-seller' },
+      { label: 'Fabriqué UE', href: '/fr/fabricado-ue' },
+      { label: 'Recyclé', href: '/fr/reciclado' },
+      { label: 'USB STOCK', href: '/fr/usb' },
+      { label: 'Outlet', href: '/fr/outlet' },
+      { label: 'Spéciaux', href: '/fr/especiales' },
+      { label: 'Promotions', href: '/fr/promociones' },
+      { label: 'Congrès', href: '/fr/congresos' },
+      { label: 'Nouveautés', href: '/fr/novedades' },
+      { label: 'Noël', href: '/fr/navidad' },
+    ],
+    secondaryNav: [
+      { label: 'Yourchoice', href: '/fr/yourchoice', hasDropdown: true },
+      { label: 'Mentions Légales', href: '/fr/nota-legal' },
+      { label: 'Contact', href: '/fr/contacto' },
+    ],
+    catalogCta: 'Voir le catalogue'
+  },
+  de: {
+    mainNav: [
+      { label: 'Startseite', href: '/de' },
+      { label: 'Katalog', href: '/de/catalogo', hasDropdown: true },
+      { label: 'Best Seller', href: '/de/best-seller' },
+      { label: 'EU Hergestellt', href: '/de/fabricado-ue' },
+      { label: 'Recycelt', href: '/de/reciclado' },
+      { label: 'USB STOCK', href: '/de/usb' },
+      { label: 'Outlet', href: '/de/outlet' },
+      { label: 'Angebote', href: '/de/especiales' },
+      { label: 'Aktionen', href: '/de/promociones' },
+      { label: 'Kongresse', href: '/de/congresos' },
+      { label: 'Neuheiten', href: '/de/novedades' },
+      { label: 'Weihnachten', href: '/de/navidad' },
+    ],
+    secondaryNav: [
+      { label: 'Yourchoice', href: '/de/yourchoice', hasDropdown: true },
+      { label: 'Impressum', href: '/de/nota-legal' },
+      { label: 'Kontakt', href: '/de/contacto' },
+    ],
+    catalogCta: 'Katalog ansehen'
+  },
+  it: {
+    mainNav: [
+      { label: 'Home', href: '/it' },
+      { label: 'Catalogo', href: '/it/catalogo', hasDropdown: true },
+      { label: 'Best Seller', href: '/it/best-seller' },
+      { label: 'Prodotto UE', href: '/it/fabricado-ue' },
+      { label: 'Riciclato', href: '/it/reciclado' },
+      { label: 'USB STOCK', href: '/it/usb' },
+      { label: 'Outlet', href: '/it/outlet' },
+      { label: 'Speciali', href: '/it/especiales' },
+      { label: 'Promozioni', href: '/it/promociones' },
+      { label: 'Congressi', href: '/it/congresos' },
+      { label: 'Novità', href: '/it/novedades' },
+      { label: 'Natale', href: '/it/navidad' },
+    ],
+    secondaryNav: [
+      { label: 'Yourchoice', href: '/it/yourchoice', hasDropdown: true },
+      { label: 'Note Legali', href: '/it/nota-legal' },
+      { label: 'Contatti', href: '/it/contacto' },
+    ],
+    catalogCta: 'Vedi catalogo'
+  },
+  pt: {
+    mainNav: [
+      { label: 'Início', href: '/pt' },
+      { label: 'Catálogo', href: '/pt/catalogo', hasDropdown: true },
+      { label: 'Best Seller', href: '/pt/best-seller' },
+      { label: 'Fabricado UE', href: '/pt/fabricado-ue' },
+      { label: 'Reciclado', href: '/pt/reciclado' },
+      { label: 'USB STOCK', href: '/pt/usb' },
+      { label: 'Outlet', href: '/pt/outlet' },
+      { label: 'Especiais', href: '/pt/especiales' },
+      { label: 'Promoções', href: '/pt/promociones' },
+      { label: 'Congressos', href: '/pt/congresos' },
+      { label: 'Novidades', href: '/pt/novedades' },
+      { label: 'Natal', href: '/pt/navidad' },
+    ],
+    secondaryNav: [
+      { label: 'Yourchoice', href: '/pt/yourchoice', hasDropdown: true },
+      { label: 'Nota Legal', href: '/pt/nota-legal' },
+      { label: 'Contacto', href: '/pt/contacto' },
+    ],
+    catalogCta: 'Ver catálogo'
+  },
+};
 
-const secondaryNavItems = [
-  { label: 'Yourchoice', href: '/yourchoice', hasDropdown: true },
-  { label: 'Nota legal', href: '/nota-legal' },
-  { label: 'Contacto', href: '/contacto' },
-];
+type Language = keyof typeof navContent;
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -30,6 +147,23 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const location = useLocation();
+
+  // Detect current language from URL
+  const currentLang = useMemo<Language>(() => {
+    const path = location.pathname;
+    if (path.startsWith('/en/') || path === '/en') return 'en';
+    if (path.startsWith('/fr/') || path === '/fr') return 'fr';
+    if (path.startsWith('/de/') || path === '/de') return 'de';
+    if (path.startsWith('/it/') || path === '/it') return 'it';
+    if (path.startsWith('/pt/') || path === '/pt') return 'pt';
+    return 'es';
+  }, [location.pathname]);
+
+  // Get navigation items for current language
+  const { mainNav, secondaryNav, catalogCta } = navContent[currentLang];
+
+  // Get home link for logo
+  const homeLink = currentLang === 'es' ? '/' : `/${currentLang}`;
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 150);
@@ -50,7 +184,9 @@ const Header = () => {
   }, [location]);
 
   const isActive = (href: string) => {
-    if (href === '/') return location.pathname === '/';
+    if (href === '/' || href === '/en' || href === '/fr' || href === '/de' || href === '/it' || href === '/pt') {
+      return location.pathname === href;
+    }
     return location.pathname.startsWith(href);
   };
 
@@ -69,8 +205,8 @@ const Header = () => {
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
           <Link 
-            to="/" 
-            className={`flex-shrink-0 transition-all duration-500 ${
+            to={homeLink}
+            className={`flex-shrink-0 transition-all duration-500 group ${
               isScrolled ? 'scale-90' : 'scale-100'
             }`}
             style={{ 
@@ -81,8 +217,8 @@ const Header = () => {
           >
             <div className="flex flex-col items-center">
               <span className="text-2xl md:text-3xl font-bold tracking-tight">
-                <span className="text-black">di</span>
-                <span className="text-[#e30614]">Promotions</span>
+                <span className="text-black group-hover:text-[#e30614] transition-colors duration-300">di</span>
+                <span className="text-[#e30614] group-hover:text-black transition-colors duration-300">Promotions</span>
               </span>
               <span className="text-[10px] md:text-xs text-gray-500 tracking-widest uppercase">
                 Digarco & Asociados
@@ -92,7 +228,7 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden xl:flex items-center gap-1 flex-1 justify-center">
-            {mainNavItems.map((item, index) => (
+            {mainNav.map((item, index) => (
               <Link
                 key={item.label}
                 to={item.href}
@@ -144,7 +280,7 @@ const Header = () => {
             isScrolled ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'
           }`}
         >
-          {secondaryNavItems.map((item, index) => (
+          {secondaryNav.map((item, index) => (
             <Link
               key={item.label}
               to={item.href}
@@ -165,25 +301,70 @@ const Header = () => {
 
       {/* Mobile Menu */}
       <div 
-        className={`xl:hidden fixed inset-x-0 top-[60px] bg-white shadow-xl transition-all duration-300 overflow-auto max-h-[calc(100vh-60px)] z-50 ${
+        className={`xl:hidden fixed inset-x-0 top-[60px] bg-white/95 backdrop-blur-lg shadow-2xl transition-all duration-300 overflow-auto max-h-[calc(100vh-60px)] z-50 ${
           mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
         }`}
       >
         <div className="p-4 space-y-1">
-          {[...mainNavItems, ...secondaryNavItems].map((item, index) => (
+          {/* Main Navigation */}
+          <div className="mb-4">
+            <p className="text-xs text-gray-400 uppercase tracking-wider px-4 mb-2">Menú principal</p>
+            {mainNav.map((item, index) => (
+              <Link
+                key={item.label}
+                to={item.href}
+                className={`flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200 ${
+                  isActive(item.href) 
+                    ? 'bg-gradient-to-r from-red-50 to-red-100/50 text-[#e30614] font-medium' 
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-[#e30614]'
+                }`}
+                style={{ 
+                  animation: mobileMenuOpen ? `slideRight 0.3s var(--ease-out-quart) ${index * 30}ms forwards` : 'none',
+                  opacity: 0
+                }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          
+          {/* Divider */}
+          <div className="border-t border-gray-100 my-4" />
+          
+          {/* Secondary Navigation */}
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wider px-4 mb-2">Más opciones</p>
+            {secondaryNav.map((item, index) => (
+              <Link
+                key={item.label}
+                to={item.href}
+                className={`flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200 ${
+                  isActive(item.href) 
+                    ? 'bg-gradient-to-r from-red-50 to-red-100/50 text-[#e30614] font-medium' 
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-[#e30614]'
+                }`}
+                style={{ 
+                  animation: mobileMenuOpen ? `slideRight 0.3s var(--ease-out-quart) ${(mainNav.length + index) * 30}ms forwards` : 'none',
+                  opacity: 0
+                }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="border-t border-gray-100 mt-4 pt-4">
             <Link
-              key={item.label}
-              to={item.href}
-              className={`block py-3 px-4 rounded-lg transition-all duration-200 ${
-                isActive(item.href) 
-                  ? 'bg-red-50 text-[#e30614] font-medium' 
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-[#e30614]'
-              }`}
-              style={{ animationDelay: `${index * 50}ms` }}
+              to={currentLang === 'es' ? '/catalogo' : `/${currentLang}/catalogo`}
+              className="flex items-center justify-center gap-2 w-full py-3 bg-[#e30614] text-white rounded-xl font-medium hover:bg-[#c7000b] transition-colors"
             >
-              {item.label}
+              <ShoppingBag className="w-5 h-5" />
+              {catalogCta}
             </Link>
-          ))}
+          </div>
         </div>
       </div>
 
