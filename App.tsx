@@ -2,9 +2,11 @@
 // APP PRINCIPAL - diPromotions
 // =============================================
 
-import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
+
+// Context Provider
+import { LanguageProvider } from './context/LanguageContext';
 
 // Layout
 import TopBar from './sections/TopBar';
@@ -34,85 +36,66 @@ import {
 } from './pages/subpages';
 
 function App() {
-  const [currentLang, setCurrentLang] = useState('ES');
-
-  // Cargar idioma guardado
-  useEffect(() => {
-    const savedLang = localStorage.getItem('dipromotions_lang');
-    if (savedLang) {
-      setCurrentLang(savedLang);
-      document.documentElement.lang = savedLang.toLowerCase();
-    }
-  }, []);
-
-  // Escuchar cambios de idioma globales
-  useEffect(() => {
-    const handleLangChange = (e: CustomEvent<{ language: string }>) => {
-      setCurrentLang(e.detail.language);
-    };
-
-    window.addEventListener('languageChanged', handleLangChange as EventListener);
-    return () => window.removeEventListener('languageChanged', handleLangChange as EventListener);
-  }, []);
-
   return (
-    <Router>
-      <div className="min-h-screen bg-white flex flex-col">
-        {/* Top Bar con selector de idioma */}
-        <TopBar currentLang={currentLang} onLangChange={setCurrentLang} />
-        
-        {/* Header principal con navegación */}
-        <Header />
-        
-        {/* Contenido principal */}
-        <main className="flex-1">
-          <Routes>
-            {/* Páginas principales */}
-            <Route path="/" element={<Home />} />
-            <Route path="/catalogo" element={<Catalogo />} />
-            <Route path="/catalogo/:category" element={<Catalogo />} />
-            <Route path="/producto/:slug" element={<Producto />} />
-            <Route path="/carrito" element={<Carrito />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/contacto" element={<Contacto />} />
-            
-            {/* Subpáginas de categorías */}
-            <Route path="/best-seller" element={<BestSeller />} />
-            <Route path="/fabricado-ue" element={<FabricadoUE />} />
-            <Route path="/reciclado" element={<Reciclado />} />
-            <Route path="/usb" element={<USBStock />} />
-            <Route path="/outlet" element={<Outlet />} />
-            <Route path="/especiales" element={<Especiales />} />
-            <Route path="/promociones" element={<Promociones />} />
-            <Route path="/congresos" element={<Congresos />} />
-            <Route path="/novedades" element={<Novedades />} />
-            <Route path="/navidad" element={<Navidad />} />
-            <Route path="/yourchoice" element={<Yourchoice />} />
-            
-            {/* Legal */}
-            <Route path="/nota-legal" element={<NotaLegal />} />
-            
-            {/* 404 - Redirigir a home */}
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </main>
-        
-        {/* Footer */}
-        <Footer />
-        
-        {/* Toast notifications */}
-        <Toaster 
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: '#333',
-              color: '#fff',
-              borderRadius: '12px',
-            },
-          }}
-        />
-      </div>
-    </Router>
+    <LanguageProvider>
+      <Router>
+        <div className="min-h-screen bg-white flex flex-col">
+          {/* Top Bar con selector de idioma */}
+          <TopBar />
+          
+          {/* Header principal con navegación */}
+          <Header />
+          
+          {/* Contenido principal */}
+          <main className="flex-1">
+            <Routes>
+              {/* Páginas principales */}
+              <Route path="/" element={<Home />} />
+              <Route path="/catalogo" element={<Catalogo />} />
+              <Route path="/catalogo/:category" element={<Catalogo />} />
+              <Route path="/producto/:slug" element={<Producto />} />
+              <Route path="/carrito" element={<Carrito />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/contacto" element={<Contacto />} />
+              
+              {/* Subpáginas de categorías */}
+              <Route path="/best-seller" element={<BestSeller />} />
+              <Route path="/fabricado-ue" element={<FabricadoUE />} />
+              <Route path="/reciclado" element={<Reciclado />} />
+              <Route path="/usb" element={<USBStock />} />
+              <Route path="/outlet" element={<Outlet />} />
+              <Route path="/especiales" element={<Especiales />} />
+              <Route path="/promociones" element={<Promociones />} />
+              <Route path="/congresos" element={<Congresos />} />
+              <Route path="/novedades" element={<Novedades />} />
+              <Route path="/navidad" element={<Navidad />} />
+              <Route path="/yourchoice" element={<Yourchoice />} />
+              
+              {/* Legal */}
+              <Route path="/nota-legal" element={<NotaLegal />} />
+              
+              {/* 404 - Redirigir a home */}
+              <Route path="*" element={<Home />} />
+            </Routes>
+          </main>
+          
+          {/* Footer */}
+          <Footer />
+          
+          {/* Toast notifications */}
+          <Toaster 
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: '#333',
+                color: '#fff',
+                borderRadius: '12px',
+              },
+            }}
+          />
+        </div>
+      </Router>
+    </LanguageProvider>
   );
 }
 
