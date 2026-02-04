@@ -1,24 +1,58 @@
 // =============================================
-// CONFIGURACIÓN DE SUPABASE
+// CONFIGURACIÓN DE SUPABASE - diPromotions
 // =============================================
-// Para conectar con Supabase real:
-// 1. Crea un proyecto en https://supabase.com
-// 2. Ejecuta el SQL del archivo database.sql
-// 3. Configura las variables de entorno
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Configuración - Usar variables de entorno en producción
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// =============================================
+// CONFIGURACIÓN
+// =============================================
+// Variables de entorno (o fallback a valores directos para desarrollo)
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://limagftmuvindquklxqe.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbWFnZnRtdXZpbmRxdWtseHFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxOTk4MzIsImV4cCI6MjA4NTc3NTgzMn0.dYyc359GjDNXnv2xJ2z9EuPSyvLgkXX_tMfDJoZ839Q';
 
-// Modo demo si no hay credenciales
-const USE_DEMO_MODE = !SUPABASE_URL || !SUPABASE_ANON_KEY;
+// Siempre intentar conectar a Supabase (ya tenemos credenciales válidas)
+const USE_DEMO_MODE = false;
 
-// Cliente de Supabase (solo si hay credenciales)
+// Cliente de Supabase
 export const supabase: SupabaseClient | null = USE_DEMO_MODE 
   ? null 
   : createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Log para debugging
+if (USE_DEMO_MODE) {
+  console.info('🔶 diPromotions: Ejecutando en MODO DEMO (sin conexión a Supabase)');
+} else {
+  console.info('✅ diPromotions: Conectado a Supabase');
+}
+
+// =============================================
+// IMÁGENES BASE - URLs ABSOLUTAS
+// =============================================
+// Usar imágenes de placeholder o de tu CDN
+const IMAGE_BASE = 'https://images.unsplash.com';
+const PLACEHOLDER = '/images/placeholder.jpg';
+
+const DEMO_IMAGES = {
+  powerbank: `${IMAGE_BASE}/photo-1609091839311-d5365f9ff1c5?w=600&h=600&fit=crop`,
+  bolsa: `${IMAGE_BASE}/photo-1591561954557-26941169b49e?w=600&h=600&fit=crop`,
+  usb: `${IMAGE_BASE}/photo-1618410320928-25228d811631?w=600&h=600&fit=crop`,
+  lanyard: `${IMAGE_BASE}/photo-1556742049-0cfed4f6a45d?w=600&h=600&fit=crop`,
+  botella: `${IMAGE_BASE}/photo-1602143407151-7111542de6e8?w=600&h=600&fit=crop`,
+  escritorio: `${IMAGE_BASE}/photo-1583485088034-697b5bc54ccd?w=600&h=600&fit=crop`,
+  polo: `${IMAGE_BASE}/photo-1521572163474-6864f9cf17ab?w=600&h=600&fit=crop`,
+  cuaderno: `${IMAGE_BASE}/photo-1531346878377-a5be20888e57?w=600&h=600&fit=crop`,
+  auriculares: `${IMAGE_BASE}/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop`,
+  paraguas: `${IMAGE_BASE}/photo-1534309466160-70b22cc6252c?w=600&h=600&fit=crop`,
+  // Categorías
+  tecnologia: `${IMAGE_BASE}/photo-1518770660439-4636190af475?w=600&h=400&fit=crop`,
+  bolsas: `${IMAGE_BASE}/photo-1591561954557-26941169b49e?w=600&h=400&fit=crop`,
+  textil: `${IMAGE_BASE}/photo-1521572163474-6864f9cf17ab?w=600&h=400&fit=crop`,
+  congresos: `${IMAGE_BASE}/photo-1540575467063-178a50e2fd87?w=600&h=400&fit=crop`,
+  hogar: `${IMAGE_BASE}/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop`,
+  oficina: `${IMAGE_BASE}/photo-1497215842964-222b430dc094?w=600&h=400&fit=crop`,
+  ecologico: `${IMAGE_BASE}/photo-1542601906990-b4d3fb778b09?w=600&h=400&fit=crop`,
+};
 
 // =============================================
 // DATOS DE DEMOSTRACIÓN
@@ -52,8 +86,7 @@ export const demoProducts = [
     is_eco: true,
     is_eu_made: true,
     images: [
-      { id: '1', image_url: '/images/product-promotion.jpg', alt_text: 'Powerbank Solar Bambú - Vista frontal', is_primary: true, sort_order: 0 },
-      { id: '1b', image_url: '/images/cat-usb.jpg', alt_text: 'Powerbank Solar Bambú - Vista lateral', is_primary: false, sort_order: 1 }
+      { id: '1', image_url: DEMO_IMAGES.powerbank, alt_text: 'Powerbank Solar Bambú - Vista frontal', is_primary: true, sort_order: 0 },
     ],
     quantity_prices: [
       { min_quantity: 50, max_quantity: 99, price: 1499 },
@@ -90,7 +123,7 @@ export const demoProducts = [
     is_eco: true,
     is_eu_made: true,
     images: [
-      { id: '2', image_url: '/images/cat-bag.jpg', alt_text: 'Bolsa Tote Algodón Orgánico', is_primary: true, sort_order: 0 }
+      { id: '2', image_url: DEMO_IMAGES.bolsa, alt_text: 'Bolsa Tote Algodón Orgánico', is_primary: true, sort_order: 0 }
     ],
     quantity_prices: [
       { min_quantity: 100, max_quantity: 249, price: 189 },
@@ -127,7 +160,7 @@ export const demoProducts = [
     is_eco: true,
     is_eu_made: false,
     images: [
-      { id: '3', image_url: '/images/cat-usb.jpg', alt_text: 'USB Madera 16GB', is_primary: true, sort_order: 0 }
+      { id: '3', image_url: DEMO_IMAGES.usb, alt_text: 'USB Madera 16GB', is_primary: true, sort_order: 0 }
     ],
     quantity_prices: [
       { min_quantity: 25, max_quantity: 49, price: 599 },
@@ -164,7 +197,7 @@ export const demoProducts = [
     is_eco: false,
     is_eu_made: true,
     images: [
-      { id: '4', image_url: '/images/cat-lanyard.jpg', alt_text: 'Lanyard Sublimado', is_primary: true, sort_order: 0 }
+      { id: '4', image_url: DEMO_IMAGES.lanyard, alt_text: 'Lanyard Sublimado', is_primary: true, sort_order: 0 }
     ],
     quantity_prices: [
       { min_quantity: 100, max_quantity: 249, price: 129 },
@@ -201,7 +234,7 @@ export const demoProducts = [
     is_eco: true,
     is_eu_made: true,
     images: [
-      { id: '5', image_url: '/images/cat-bottle.jpg', alt_text: 'Botella Térmica 500ml', is_primary: true, sort_order: 0 }
+      { id: '5', image_url: DEMO_IMAGES.botella, alt_text: 'Botella Térmica 500ml', is_primary: true, sort_order: 0 }
     ],
     quantity_prices: [
       { min_quantity: 50, max_quantity: 99, price: 1099 },
@@ -238,179 +271,203 @@ export const demoProducts = [
     is_eco: false,
     is_eu_made: true,
     images: [
-      { id: '6', image_url: '/images/cat-pen.jpg', alt_text: 'Set Escritorio Ejecutivo', is_primary: true, sort_order: 0 }
+      { id: '6', image_url: DEMO_IMAGES.escritorio, alt_text: 'Set Escritorio Ejecutivo', is_primary: true, sort_order: 0 }
     ],
     quantity_prices: [
       { min_quantity: 50, max_quantity: 99, price: 899 },
       { min_quantity: 100, max_quantity: 249, price: 799 },
-      { min_quantity: 250, max_quantity: 499, price: 699 },
-      { min_quantity: 500, max_quantity: null, price: 599 },
+      { min_quantity: 250, max_quantity: null, price: 699 },
     ]
   },
   {
     id: '7',
-    sku: 'CAM-ORG-001',
-    name: 'Camiseta Orgánica Premium',
-    slug: 'camiseta-organica-premium',
-    description: 'Camiseta de algodón orgánico 180g/m² certificado GOTS. Corte moderno y acabados de alta calidad. Ideal para uniformes corporativos.',
-    short_description: 'Camiseta de algodón orgánico',
-    base_price: 1299,
+    sku: 'POL-PER-001',
+    name: 'Polo Personalizado Premium',
+    slug: 'polo-personalizado-premium',
+    description: 'Polo de algodón piqué de alta calidad con cuello reforzado. Ideal para uniformes corporativos y eventos. Disponible en múltiples colores y tallas.',
+    short_description: 'Polo corporativo personalizable',
+    base_price: 1199,
     sale_price: null,
-    min_quantity: 50,
-    quantity_step: 10,
-    stock_quantity: 1200,
+    min_quantity: 25,
+    quantity_step: 5,
+    stock_quantity: 1000,
     stock_status: 'in_stock',
-    category_id: '7',
-    category: { id: '7', name: 'Textil', slug: 'textil' },
-    brand: 'OrganicWear',
-    material: 'Algodón orgánico 180g/m²',
-    color: 'Blanco / Negro / Gris / Azul marino',
-    weight: 180,
-    dimensions: null,
+    category_id: '3',
+    category: { id: '3', name: 'Textil', slug: 'textil' },
+    brand: 'TextilPro',
+    material: 'Algodón piqué 220g/m²',
+    color: 'Blanco / Negro / Azul / Rojo / Verde',
+    weight: 220,
+    dimensions: { length: 0, width: 0, height: 0 },
     is_customizable: true,
-    customization_options: ['Serigrafía', 'Transfer', 'Bordado', 'DTF'],
-    print_areas: ['Pecho', 'Espalda', 'Manga'],
+    customization_options: ['Bordado', 'Serigrafía', 'Transfer'],
+    print_areas: ['Pecho izquierdo', 'Espalda'],
     is_bestseller: true,
     is_new: false,
-    is_eco: true,
+    is_eco: false,
     is_eu_made: true,
     images: [
-      { id: '7', image_url: '/images/cat-tshirt.jpg', alt_text: 'Camiseta Orgánica Premium', is_primary: true, sort_order: 0 }
+      { id: '7', image_url: DEMO_IMAGES.polo, alt_text: 'Polo Personalizado Premium', is_primary: true, sort_order: 0 }
     ],
     quantity_prices: [
-      { min_quantity: 50, max_quantity: 99, price: 1299 },
-      { min_quantity: 100, max_quantity: 249, price: 1149 },
-      { min_quantity: 250, max_quantity: 499, price: 999 },
-      { min_quantity: 500, max_quantity: null, price: 899 },
+      { min_quantity: 25, max_quantity: 49, price: 1199 },
+      { min_quantity: 50, max_quantity: 99, price: 1099 },
+      { min_quantity: 100, max_quantity: 249, price: 999 },
+      { min_quantity: 250, max_quantity: null, price: 899 },
     ]
   },
   {
     id: '8',
-    sku: 'MOCH-USB-001',
-    name: 'Mochila USB con Puerto de Carga',
-    slug: 'mochila-usb-puerto-carga',
-    description: 'Mochila moderna con puerto USB integrado para cargar dispositivos. Compartimento acolchado para portátil hasta 15.6". Múltiples bolsillos organizadores.',
-    short_description: 'Mochila con puerto USB',
-    base_price: 2499,
-    sale_price: 2199,
+    sku: 'CUA-A5-001',
+    name: 'Cuaderno A5 Tapa Dura Reciclado',
+    slug: 'cuaderno-a5-tapa-dura-reciclado',
+    description: 'Cuaderno A5 con tapa dura de cartón reciclado y 80 hojas de papel reciclado. Incluye bolígrafo a juego con clip. Cierre con goma elástica.',
+    short_description: 'Cuaderno ecológico con bolígrafo',
+    base_price: 399,
+    sale_price: 349,
+    min_quantity: 50,
+    quantity_step: 10,
+    stock_quantity: 1500,
+    stock_status: 'in_stock',
+    category_id: '6',
+    category: { id: '6', name: 'Oficina', slug: 'oficina' },
+    brand: 'EcoNote',
+    material: 'Cartón y papel reciclado',
+    color: 'Kraft / Negro / Azul',
+    weight: 200,
+    dimensions: { length: 21, width: 14.8, height: 1.5 },
+    is_customizable: true,
+    customization_options: ['Serigrafía', 'Grabado láser'],
+    print_areas: ['Tapa'],
+    is_bestseller: false,
+    is_new: true,
+    is_eco: true,
+    is_eu_made: true,
+    images: [
+      { id: '8', image_url: DEMO_IMAGES.cuaderno, alt_text: 'Cuaderno A5 Reciclado', is_primary: true, sort_order: 0 }
+    ],
+    quantity_prices: [
+      { min_quantity: 50, max_quantity: 99, price: 349 },
+      { min_quantity: 100, max_quantity: 249, price: 299 },
+      { min_quantity: 250, max_quantity: 499, price: 269 },
+      { min_quantity: 500, max_quantity: null, price: 239 },
+    ]
+  },
+  {
+    id: '9',
+    sku: 'AUR-BT-001',
+    name: 'Auriculares Bluetooth Plegables',
+    slug: 'auriculares-bluetooth-plegables',
+    description: 'Auriculares inalámbricos Bluetooth 5.0 con diseño plegable y estuche de transporte. Batería de 8h de duración. Incluye cable de carga USB-C.',
+    short_description: 'Auriculares Bluetooth con estuche',
+    base_price: 1899,
+    sale_price: null,
     min_quantity: 25,
     quantity_step: 5,
     stock_quantity: 200,
     stock_status: 'in_stock',
-    category_id: '2',
-    category: { id: '2', name: 'Bolsas', slug: 'bolsas' },
-    brand: 'TechBag',
-    material: 'Poliéster 600D resistente al agua',
-    color: 'Negro / Gris',
-    weight: 650,
-    dimensions: { length: 30, width: 15, height: 45 },
+    category_id: '1',
+    category: { id: '1', name: 'Tecnología', slug: 'tecnologia' },
+    brand: 'SoundTech',
+    material: 'Plástico ABS / Metal',
+    color: 'Negro / Blanco',
+    weight: 180,
+    dimensions: { length: 18, width: 15, height: 7 },
     is_customizable: true,
-    customization_options: ['Bordado', 'Serigrafía'],
-    print_areas: ['Frontal'],
+    customization_options: ['Tampografía', 'Grabado láser'],
+    print_areas: ['Auricular exterior'],
     is_bestseller: false,
     is_new: true,
     is_eco: false,
     is_eu_made: false,
     images: [
-      { id: '8', image_url: '/images/cat-backpack.jpg', alt_text: 'Mochila USB', is_primary: true, sort_order: 0 }
+      { id: '9', image_url: DEMO_IMAGES.auriculares, alt_text: 'Auriculares Bluetooth', is_primary: true, sort_order: 0 }
     ],
     quantity_prices: [
-      { min_quantity: 25, max_quantity: 49, price: 2199 },
-      { min_quantity: 50, max_quantity: 99, price: 1999 },
-      { min_quantity: 100, max_quantity: 249, price: 1799 },
-      { min_quantity: 250, max_quantity: null, price: 1599 },
-    ]
-  },
-  {
-    id: '9',
-    sku: 'TAZA-CER-300',
-    name: 'Taza Cerámica Premium 300ml',
-    slug: 'taza-ceramica-premium-300ml',
-    description: 'Taza de cerámica de alta calidad con acabado mate. Apta para microondas y lavavajillas. Perfecta para personalización con sublimación.',
-    short_description: 'Taza de cerámica de alta calidad',
-    base_price: 299,
-    sale_price: null,
-    min_quantity: 50,
-    quantity_step: 10,
-    stock_quantity: 3000,
-    stock_status: 'in_stock',
-    category_id: '5',
-    category: { id: '5', name: 'Hogar', slug: 'hogar' },
-    brand: 'CeramicPro',
-    material: 'Cerámica de gres',
-    color: 'Blanco / Negro / Colores variados',
-    weight: 320,
-    dimensions: { length: 8, width: 8, height: 10 },
-    is_customizable: true,
-    customization_options: ['Sublimación', 'Grabado láser'],
-    print_areas: ['360° envolvente'],
-    is_bestseller: true,
-    is_new: false,
-    is_eco: false,
-    is_eu_made: true,
-    images: [
-      { id: '9', image_url: '/images/cat-mug.jpg', alt_text: 'Taza Cerámica Premium', is_primary: true, sort_order: 0 }
-    ],
-    quantity_prices: [
-      { min_quantity: 50, max_quantity: 99, price: 299 },
-      { min_quantity: 100, max_quantity: 249, price: 269 },
-      { min_quantity: 250, max_quantity: 499, price: 239 },
-      { min_quantity: 500, max_quantity: null, price: 199 },
+      { min_quantity: 25, max_quantity: 49, price: 1899 },
+      { min_quantity: 50, max_quantity: 99, price: 1749 },
+      { min_quantity: 100, max_quantity: 249, price: 1599 },
+      { min_quantity: 250, max_quantity: null, price: 1449 },
     ]
   },
   {
     id: '10',
-    sku: 'PAR-AUTO-23',
-    name: 'Paraguas Automático 23"',
-    slug: 'paraguas-automatico-23',
-    description: 'Paraguas de apertura automática con varillas de fibra de vidrio resistentes al viento. Mango ergonómico antideslizante. Funda a juego incluida.',
+    sku: 'PAR-AUT-001',
+    name: 'Paraguas Automático Resistente',
+    slug: 'paraguas-automatico-resistente',
+    description: 'Paraguas automático con varillas de fibra de vidrio resistentes al viento. Mango ergonómico y funda incluida. Apertura y cierre automáticos.',
     short_description: 'Paraguas automático antiviento',
-    base_price: 1199,
+    base_price: 799,
     sale_price: null,
     min_quantity: 50,
     quantity_step: 10,
-    stock_quantity: 450,
+    stock_quantity: 400,
     stock_status: 'in_stock',
     category_id: '5',
     category: { id: '5', name: 'Hogar', slug: 'hogar' },
     brand: 'RainPro',
-    material: 'Pongee / Fibra de vidrio',
+    material: 'Poliéster / Fibra de vidrio',
     color: 'Negro / Azul / Rojo / Verde',
-    weight: 380,
+    weight: 350,
     dimensions: { length: 30, width: 5, height: 5 },
     is_customizable: true,
     customization_options: ['Serigrafía', 'Transfer'],
-    print_areas: ['Gajos'],
+    print_areas: ['Paneles'],
     is_bestseller: false,
     is_new: false,
     is_eco: false,
     is_eu_made: true,
     images: [
-      { id: '10', image_url: '/images/product-agumbe.jpg', alt_text: 'Paraguas Automático 23"', is_primary: true, sort_order: 0 }
+      { id: '10', image_url: DEMO_IMAGES.paraguas, alt_text: 'Paraguas Automático', is_primary: true, sort_order: 0 }
     ],
     quantity_prices: [
-      { min_quantity: 50, max_quantity: 99, price: 1199 },
-      { min_quantity: 100, max_quantity: 249, price: 1049 },
-      { min_quantity: 250, max_quantity: 499, price: 949 },
-      { min_quantity: 500, max_quantity: null, price: 849 },
+      { min_quantity: 50, max_quantity: 99, price: 799 },
+      { min_quantity: 100, max_quantity: 249, price: 699 },
+      { min_quantity: 250, max_quantity: 499, price: 599 },
+      { min_quantity: 500, max_quantity: null, price: 499 },
     ]
-  },
+  }
 ];
 
-// Categorías demo
+// =============================================
+// CATEGORÍAS DE DEMOSTRACIÓN
+// =============================================
 export const demoCategories = [
-  { id: '1', name: 'Tecnología', slug: 'tecnologia', icon: '💻', image_url: '/images/cat-usb.jpg', product_count: 45 },
-  { id: '2', name: 'Bolsas', slug: 'bolsas', icon: '👜', image_url: '/images/cat-bag.jpg', product_count: 38 },
-  { id: '3', name: 'Textil', slug: 'textil', icon: '👕', image_url: '/images/cat-tshirt.jpg', product_count: 89 },
-  { id: '4', name: 'Congresos', slug: 'congresos', icon: '🎫', image_url: '/images/cat-lanyard.jpg', product_count: 52 },
-  { id: '5', name: 'Hogar', slug: 'hogar', icon: '🏠', image_url: '/images/cat-mug.jpg', product_count: 67 },
-  { id: '6', name: 'Oficina', slug: 'oficina', icon: '✏️', image_url: '/images/cat-pen.jpg', product_count: 74 },
-  { id: '7', name: 'Ecológico', slug: 'ecologico', icon: '🌱', image_url: '/images/product-recycled.jpg', product_count: 34 },
+  { id: '1', name: 'Tecnología', slug: 'tecnologia', icon: '💻', image_url: DEMO_IMAGES.tecnologia, product_count: 3 },
+  { id: '2', name: 'Bolsas', slug: 'bolsas', icon: '👜', image_url: DEMO_IMAGES.bolsas, product_count: 1 },
+  { id: '3', name: 'Textil', slug: 'textil', icon: '👕', image_url: DEMO_IMAGES.textil, product_count: 1 },
+  { id: '4', name: 'Congresos', slug: 'congresos', icon: '🎫', image_url: DEMO_IMAGES.congresos, product_count: 1 },
+  { id: '5', name: 'Hogar', slug: 'hogar', icon: '🏠', image_url: DEMO_IMAGES.hogar, product_count: 2 },
+  { id: '6', name: 'Oficina', slug: 'oficina', icon: '✏️', image_url: DEMO_IMAGES.oficina, product_count: 2 },
+  { id: '7', name: 'Ecológico', slug: 'ecologico', icon: '🌱', image_url: DEMO_IMAGES.ecologico, product_count: 5 },
 ];
 
 // =============================================
 // TIPOS
 // =============================================
+export interface ProductImage {
+  id: string;
+  image_url: string;
+  alt_text?: string;
+  is_primary: boolean;
+  sort_order: number;
+}
+
+export interface QuantityPrice {
+  min_quantity: number;
+  max_quantity: number | null;
+  price: number;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon?: string;
+  image_url?: string;
+  product_count?: number;
+}
+
 export interface Product {
   id: string;
   sku: string;
@@ -425,12 +482,12 @@ export interface Product {
   stock_quantity: number;
   stock_status: string;
   category_id: string;
-  category?: { id: string; name: string; slug: string };
+  category?: Category;
   brand: string;
-  material: string;
+  material?: string;
   color?: string;
   weight?: number;
-  dimensions?: { length: number; width: number; height: number } | null;
+  dimensions?: { length: number; width: number; height: number };
   is_customizable: boolean;
   customization_options?: string[];
   print_areas?: string[];
@@ -438,42 +495,20 @@ export interface Product {
   is_new: boolean;
   is_eco: boolean;
   is_eu_made: boolean;
-  images: Array<{
-    id: string;
-    image_url: string;
-    alt_text: string;
-    is_primary: boolean;
-    sort_order: number;
-  }>;
-  quantity_prices: Array<{
-    min_quantity: number;
-    max_quantity: number | null;
-    price: number;
-  }>;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  icon?: string;
-  image_url?: string;
-  product_count?: number;
+  images?: ProductImage[];
+  quantity_prices?: QuantityPrice[];
 }
 
 // =============================================
 // SERVICIO DE PRODUCTOS
 // =============================================
 export const ProductService = {
-  /**
-   * Obtiene productos con filtros y paginación
-   */
   async getAll(options: {
     page?: number;
     limit?: number;
     category?: string;
     search?: string;
-    sortBy?: 'name' | 'price_asc' | 'price_desc' | 'newest';
+    sortBy?: string;
     filters?: {
       is_eco?: boolean;
       is_eu_made?: boolean;
@@ -482,11 +517,11 @@ export const ProductService = {
       priceMax?: number;
     };
   } = {}): Promise<{ products: Product[]; total: number; page: number; totalPages: number }> {
-    const { 
-      page = 1, 
-      limit = 20, 
-      category = null,
-      search = null,
+    const {
+      page = 1,
+      limit = 12,
+      category,
+      search,
       sortBy = 'name',
       filters = {}
     } = options;
@@ -516,7 +551,6 @@ export const ProductService = {
       if (filters.priceMin) query = query.gte('base_price', filters.priceMin);
       if (filters.priceMax) query = query.lte('base_price', filters.priceMax);
 
-      // Ordenación
       switch (sortBy) {
         case 'price_asc':
           query = query.order('base_price', { ascending: true });
@@ -549,12 +583,10 @@ export const ProductService = {
     // Modo demo: filtrar datos locales
     let data = [...demoProducts] as Product[];
 
-    // Filtro por categoría
     if (category) {
       data = data.filter(p => p.category_id === category || p.category?.slug === category);
     }
 
-    // Filtro por búsqueda
     if (search) {
       const term = search.toLowerCase();
       data = data.filter(p => 
@@ -565,14 +597,12 @@ export const ProductService = {
       );
     }
 
-    // Filtros adicionales
     if (filters.is_eco) data = data.filter(p => p.is_eco);
     if (filters.is_eu_made) data = data.filter(p => p.is_eu_made);
     if (filters.is_bestseller) data = data.filter(p => p.is_bestseller);
     if (filters.priceMin) data = data.filter(p => p.base_price >= filters.priceMin!);
     if (filters.priceMax) data = data.filter(p => p.base_price <= filters.priceMax!);
 
-    // Ordenación
     switch (sortBy) {
       case 'price_asc':
         data.sort((a, b) => (a.sale_price || a.base_price) - (b.sale_price || b.base_price));
@@ -598,9 +628,6 @@ export const ProductService = {
     };
   },
 
-  /**
-   * Obtiene un producto por su slug
-   */
   async getBySlug(slug: string): Promise<Product | null> {
     if (supabase && !USE_DEMO_MODE) {
       const { data, error } = await supabase
@@ -621,9 +648,6 @@ export const ProductService = {
     return (demoProducts.find(p => p.slug === slug) as Product) || null;
   },
 
-  /**
-   * Obtiene un producto por su ID
-   */
   async getById(id: string): Promise<Product | null> {
     if (supabase && !USE_DEMO_MODE) {
       const { data, error } = await supabase
@@ -644,15 +668,11 @@ export const ProductService = {
     return (demoProducts.find(p => p.id === id) as Product) || null;
   },
 
-  /**
-   * Calcula el precio según la cantidad (precios escalonados B2B)
-   */
   calculatePrice(product: Product, quantity: number): number {
     if (!product.quantity_prices || product.quantity_prices.length === 0) {
       return product.sale_price || product.base_price;
     }
 
-    // Ordenar por min_quantity descendente y encontrar el rango aplicable
     const sortedPrices = [...product.quantity_prices]
       .sort((a, b) => b.min_quantity - a.min_quantity);
 
@@ -667,17 +687,11 @@ export const ProductService = {
     return product.sale_price || product.base_price;
   },
 
-  /**
-   * Obtiene la imagen principal de un producto
-   */
   getPrimaryImage(product: Product): string {
     const primary = product.images?.find(img => img.is_primary);
-    return primary?.image_url || product.images?.[0]?.image_url || '/images/placeholder.jpg';
+    return primary?.image_url || product.images?.[0]?.image_url || PLACEHOLDER;
   },
 
-  /**
-   * Formatea el precio para mostrar (céntimos a euros)
-   */
   formatPrice(cents: number): string {
     return (cents / 100).toLocaleString('es-ES', {
       style: 'currency',
@@ -690,9 +704,6 @@ export const ProductService = {
 // SERVICIO DE CATEGORÍAS
 // =============================================
 export const CategoryService = {
-  /**
-   * Obtiene todas las categorías
-   */
   async getAll(): Promise<Category[]> {
     if (supabase && !USE_DEMO_MODE) {
       const { data, error } = await supabase
@@ -707,9 +718,6 @@ export const CategoryService = {
     return demoCategories;
   },
 
-  /**
-   * Obtiene una categoría por su slug
-   */
   async getBySlug(slug: string): Promise<Category | null> {
     if (supabase && !USE_DEMO_MODE) {
       const { data, error } = await supabase
@@ -726,5 +734,5 @@ export const CategoryService = {
   }
 };
 
-// Exportar estado de modo demo para debugging
+// Exportar estado de modo demo
 export const isDemoMode = USE_DEMO_MODE;
