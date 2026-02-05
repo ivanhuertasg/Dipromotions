@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 interface Category {
   name: string;
@@ -12,19 +13,22 @@ interface CategoryLinksProps {
   categories?: Category[];
 }
 
-const defaultCategories: Category[] = [
-  { name: 'Best Seller', href: '/best-seller', icon: '⭐' },
-  { name: 'Yourchoice', href: '/yourchoice', icon: '✨' },
-  { name: 'Fabricado UE', href: '/fabricado-ue', icon: '🇪🇺' },
-  { name: 'Reciclado', href: '/reciclado', icon: '♻️' },
-  { name: 'USB Stock', href: '/usb', icon: '💾' },
-  { name: 'Outlet', href: '/outlet', icon: '🏷️' },
-  { name: 'Especiales', href: '/especiales', icon: '🎁' },
-  { name: 'Promociones', href: '/promociones', icon: '🔥' },
-  { name: 'Novedades', href: '/novedades', icon: '🆕' },
-];
+const CategoryLinks = ({ title, categories }: CategoryLinksProps) => {
+  const { t } = useLanguage();
 
-const CategoryLinks = ({ title, categories = defaultCategories }: CategoryLinksProps) => {
+  const defaultCategories: Category[] = [
+    { name: t('categories.bestSeller'), href: '/best-seller', icon: '⭐' },
+    { name: t('categories.yourchoice'), href: '/yourchoice', icon: '✨' },
+    { name: t('categories.fabricadoUE'), href: '/fabricado-ue', icon: '🇪🇺' },
+    { name: t('categories.reciclado'), href: '/reciclado', icon: '♻️' },
+    { name: t('categories.usbStock'), href: '/usb', icon: '💾' },
+    { name: t('categories.outlet'), href: '/outlet', icon: '🏷️' },
+    { name: t('categories.especiales'), href: '/especiales', icon: '🎁' },
+    { name: t('categories.promociones'), href: '/promociones', icon: '🔥' },
+    { name: t('categories.novedades'), href: '/novedades', icon: '🆕' },
+  ];
+
+  const displayCategories = categories || defaultCategories;
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -58,16 +62,16 @@ const CategoryLinks = ({ title, categories = defaultCategories }: CategoryLinksP
           </h2>
         )}
         <div className="flex flex-wrap justify-center gap-4">
-          {categories.map((category, index) => (
+          {displayCategories.map((category, index) => (
             <Link
               key={category.name}
               to={category.href}
               className={`group flex items-center gap-3 px-6 py-4 bg-white rounded-full shadow-md transition-all duration-300 hover:shadow-lg hover:bg-[#e30614] hover:text-white ${
-                isVisible 
-                  ? 'opacity-100 translate-y-0' 
+                isVisible
+                  ? 'opacity-100 translate-y-0'
                   : 'opacity-0 translate-y-10'
               }`}
-              style={{ 
+              style={{
                 transitionTimingFunction: 'var(--ease-out-expo)',
                 transitionDelay: `${index * 50}ms`
               }}

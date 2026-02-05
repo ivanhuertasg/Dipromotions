@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Search, User, ChevronDown, Menu, X, ShoppingBag } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MiniCart from '../components/MiniCart';
+import { useLanguage } from '../context/LanguageContext';
 
 // Navigation content for each language
 const navContent = {
@@ -152,16 +153,9 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Detect current language from URL
-  const currentLang = useMemo<Language>(() => {
-    const path = location.pathname;
-    if (path.startsWith('/en/') || path === '/en') return 'en';
-    if (path.startsWith('/fr/') || path === '/fr') return 'fr';
-    if (path.startsWith('/de/') || path === '/de') return 'de';
-    if (path.startsWith('/it/') || path === '/it') return 'it';
-    if (path.startsWith('/pt/') || path === '/pt') return 'pt';
-    return 'es';
-  }, [location.pathname]);
+  // Get current language from context
+  const { currentLang: contextLang } = useLanguage();
+  const currentLang = (contextLang || 'es') as Language;
 
   // Get navigation items for current language
   const { mainNav, secondaryNav, catalogCta } = navContent[currentLang];

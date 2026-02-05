@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 interface Slide {
   id?: string;
@@ -15,23 +16,26 @@ interface HeroSliderProps {
   slides?: Slide[];
 }
 
-// Default slides (fallback)
-const defaultSlides: Slide[] = [
-  {
-    title: 'Lanyard sublimados',
-    subtitle: 'Hechos a medida de forma experta y directa en nuestras fábricas, con la imagen que desees.',
-    cta: 'Lanyards sublimados',
-    ctaLink: '/yourchoice',
-  },
-  {
-    title: 'Uniformes médicos',
-    subtitle: 'Conoce nuestra amplia variedad de prendas diseñadas para el trabajo en clínica.',
-    cta: 'Casaca | Bata',
-    ctaLink: '/catalogo',
-  },
-];
+const HeroSlider = ({ slides }: HeroSliderProps) => {
+  const { t } = useLanguage();
 
-const HeroSlider = ({ slides = defaultSlides }: HeroSliderProps) => {
+  // Default slides (fallback) with translations
+  const defaultSlides: Slide[] = [
+    {
+      title: t('hero.slide1.title'),
+      subtitle: t('hero.slide1.subtitle'),
+      cta: t('hero.slide1.cta'),
+      ctaLink: '/yourchoice',
+    },
+    {
+      title: t('hero.slide2.title'),
+      subtitle: t('hero.slide2.subtitle'),
+      cta: t('hero.slide2.cta'),
+      ctaLink: '/catalogo',
+    },
+  ];
+
+  const displaySlides = slides || defaultSlides;
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -49,12 +53,12 @@ const HeroSlider = ({ slides = defaultSlides }: HeroSliderProps) => {
   }, [isAnimating]);
 
   const nextSlide = useCallback(() => {
-    goToSlide((currentSlide + 1) % slides.length);
-  }, [currentSlide, goToSlide]);
+    goToSlide((currentSlide + 1) % displaySlides.length);
+  }, [currentSlide, goToSlide, displaySlides.length]);
 
   const prevSlide = useCallback(() => {
-    goToSlide((currentSlide - 1 + slides.length) % slides.length);
-  }, [currentSlide, goToSlide]);
+    goToSlide((currentSlide - 1 + displaySlides.length) % displaySlides.length);
+  }, [currentSlide, goToSlide, displaySlides.length]);
 
   // Auto-advance slides
   useEffect(() => {
@@ -65,7 +69,7 @@ const HeroSlider = ({ slides = defaultSlides }: HeroSliderProps) => {
   return (
     <section className="relative w-full h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden">
       {/* Slides */}
-      {slides.map((slide, index) => (
+      {displaySlides.map((slide, index) => (
         <div
           key={slide.id}
           className={`absolute inset-0 transition-all duration-800 ${
@@ -173,7 +177,7 @@ const HeroSlider = ({ slides = defaultSlides }: HeroSliderProps) => {
 
       {/* Dots Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
-        {slides.map((_, index) => (
+        {displaySlides.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}

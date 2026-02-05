@@ -1,19 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, Instagram, Facebook, Linkedin, Twitter, MapPin, Clock } from 'lucide-react';
-
-const serviceLinks = [
-  { label: 'Best Seller', href: '/best-seller' },
-  { label: 'Yourchoice', href: '/yourchoice' },
-  { label: 'Fabricado en UE', href: '/fabricado-ue' },
-  { label: 'Reciclado', href: '/reciclado' },
-  { label: 'USB Stock', href: '/usb' },
-  { label: 'Outlet', href: '/outlet' },
-  { label: 'Especiales', href: '/especiales' },
-  { label: 'Promociones', href: '/promociones' },
-  { label: 'Novedades', href: '/novedades' },
-  { label: 'Catálogo', href: '/catalogo' },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 const socialLinks = [
   { 
@@ -43,8 +31,22 @@ const socialLinks = [
 ];
 
 const Footer = () => {
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const footerRef = useRef<HTMLElement>(null);
+
+  const serviceLinks = [
+    { label: t('categories.bestSeller'), href: '/best-seller' },
+    { label: t('categories.yourchoice'), href: '/yourchoice' },
+    { label: t('categories.fabricadoUE'), href: '/fabricado-ue' },
+    { label: t('categories.reciclado'), href: '/reciclado' },
+    { label: t('categories.usbStock'), href: '/usb' },
+    { label: t('categories.outlet'), href: '/outlet' },
+    { label: t('categories.especiales'), href: '/especiales' },
+    { label: t('categories.promociones'), href: '/promociones' },
+    { label: t('categories.novedades'), href: '/novedades' },
+    { label: t('nav.catalog'), href: '/catalogo' },
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -83,17 +85,13 @@ const Footer = () => {
             }}
           >
             <h3 className="text-lg font-semibold mb-4">
-              Siempre <span className="text-[#e30614]">tu producto único</span>
+              {t('footer.tagline.always')} <span className="text-[#e30614]">{t('footer.tagline.unique')}</span>
             </h3>
             <p className="text-gray-400 text-sm leading-relaxed mb-4">
-              Disponemos de una extensa red de oficinas para dar un buen servicio y soporte. 
-              Con una gran variedad de estilos y opciones de personalización entre las que elegir, 
-              puedes encontrar los accesorios perfectos para combinar con la identidad de tu marca 
-              y crear un look cohesionado y elegante.
+              {t('footer.description1')}
             </p>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Todos los productos se fabrican de forma responsable y cumplen con todos los requisitos 
-              de leyes y normativas de la Unión Europea. Reduciendo drásticamente el uso de plástico virgen.
+              {t('footer.description2')}
             </p>
           </div>
 
@@ -107,7 +105,7 @@ const Footer = () => {
               transitionDelay: '200ms'
             }}
           >
-            <h3 className="text-lg font-semibold mb-4">Nuestros servicios</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footer.services')}</h3>
             <ul className="space-y-2">
               {serviceLinks.map((link, index) => (
                 <li 
@@ -139,8 +137,8 @@ const Footer = () => {
               transitionDelay: '300ms'
             }}
           >
-            <h3 className="text-lg font-semibold mb-4">¿Podemos ayudarte?</h3>
-            
+            <h3 className="text-lg font-semibold mb-4">{t('footer.help')}</h3>
+
             <div className="space-y-3">
               <a 
                 href="tel:+34961588186"
@@ -175,15 +173,15 @@ const Footer = () => {
               <div className="flex items-start gap-3 text-gray-400">
                 <Clock className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <span className="text-sm">
-                  Lun - Vie: 9:00 - 18:00<br />
-                  Sáb - Dom: Cerrado
+                  {t('footer.schedule.weekdays')}<br />
+                  {t('footer.schedule.weekend')}
                 </span>
               </div>
             </div>
 
             {/* Social Icons */}
             <div className="mt-6">
-              <p className="text-sm text-gray-500 mb-3">Síguenos en redes</p>
+              <p className="text-sm text-gray-500 mb-3">{t('footer.social')}</p>
               <div className="flex gap-3">
                 {socialLinks.map((social, index) => (
                   <a
@@ -227,21 +225,21 @@ const Footer = () => {
             </span>
             <span className="text-white/60 text-sm hidden sm:inline">|</span>
             <p className="text-white/80 text-sm">
-              © {new Date().getFullYear()} Todos los derechos reservados.
+              © {new Date().getFullYear()} {t('footer.copyright')}
             </p>
           </div>
           <div className="flex items-center gap-6">
-            <Link 
+            <Link
               to="/nota-legal"
               className="text-white/80 text-sm hover:text-white transition-colors duration-200"
             >
-              Política de privacidad
+              {t('footer.privacy')}
             </Link>
-            <Link 
+            <Link
               to="/contacto"
               className="text-white/80 text-sm hover:text-white transition-colors duration-200"
             >
-              Contacto
+              {t('footer.contact')}
             </Link>
           </div>
         </div>
