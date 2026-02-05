@@ -58,8 +58,8 @@ const PageTemplate = ({ title, subtitle, description, children, showProducts = f
       const loadProducts = async () => {
         setLoading(true);
         try {
-          const allProducts = await ProductService.getAll();
-          let filtered = allProducts;
+          const result = await ProductService.getAll();
+          let filtered = result.products;
 
           // Aplicar filtros
           if (productFilter.is_bestseller !== undefined) {
