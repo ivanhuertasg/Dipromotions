@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { Search, User, ChevronDown, Menu, X, ShoppingBag } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MiniCart from '../components/MiniCart';
 
 // Navigation content for each language
@@ -145,8 +145,12 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const headerRef = useRef<HTMLElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Detect current language from URL
   const currentLang = useMemo<Language>(() => {
@@ -178,10 +182,29 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
+  // Close mobile menu and search on route change
   useEffect(() => {
     setMobileMenuOpen(false);
+    setSearchOpen(false);
   }, [location]);
+
+  // Focus search input when search opens
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  // Handle search submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      const catalogPath = currentLang === 'es' ? '/catalogo' : `/${currentLang}/catalogo`;
+      navigate(`${catalogPath}?search=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchOpen(false);
+      setSearchTerm('');
+    }
+  };
 
   const isActive = (href: string) => {
     if (href === '/' || href === '/en' || href === '/fr' || href === '/de' || href === '/it' || href === '/pt') {
@@ -247,25 +270,28 @@ const Header = () => {
           </nav>
 
           {/* Right Icons */}
-          <div 
+          <div
             className="flex items-center gap-2 md:gap-4"
-            style={{ 
+            style={{
               animation: isVisible ? 'scaleIn 0.5s var(--ease-elastic) 0.8s forwards' : 'none',
               opacity: 0
             }}
           >
-            <button className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 hover:scale-110">
+            <button
+              className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 hover:scale-110"
+              onClick={() => setSearchOpen(!searchOpen)}
+            >
               <Search className="w-5 h-5 text-gray-700" />
             </button>
             <button className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 hover:scale-110 hidden sm:block">
               <User className="w-5 h-5 text-gray-700" />
             </button>
-            
+
             {/* Mini Cart */}
             <MiniCart />
-            
+
             {/* Mobile Menu Button */}
-            <button 
+            <button
               className="xl:hidden p-2 hover:bg-gray-100 rounded-full transition-all duration-200"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
@@ -365,6 +391,53 @@ const Header = () => {
               {catalogCta}
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Search Overlay */}
+      <div
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 transition-all duration-300 ${
+          searchOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setSearchOpen(false)}
+      >
+        <div
+          className={`bg-white mx-auto mt-20 max-w-2xl rounded-2xl shadow-2xl transition-all duration-300 ${
+            searchOpen ? 'translate-y-0 opacity-100' : '-translate-y-8 opacity-0'
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <form onSubmit={handleSearch} className="p-6">
+            <div className="flex items-center gap-4">
+              <Search className="w-6 h-6 text-gray-400 flex-shrink-0" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar productos..."
+                className="flex-1 text-lg outline-none text-gray-900 placeholder-gray-400"
+              />
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-sm text-gray-500">
+                Presiona Enter para buscar
+              </p>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-[#e30614] text-white rounded-full font-medium hover:bg-[#c7000b] transition-colors"
+              >
+                Buscar
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 

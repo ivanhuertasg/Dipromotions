@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search, Filter, Grid3X3, List } from 'lucide-react';
 import { ProductService } from '../lib/supabase';
 import ProductCard from '../components/ProductCard';
@@ -14,8 +14,9 @@ const categories = [
 ];
 
 const Catalogo = () => {
+  const [searchParams] = useSearchParams();
   const [isVisible, setIsVisible] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -38,6 +39,14 @@ const Catalogo = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  // Update search term when URL params change
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    if (urlSearch) {
+      setSearchTerm(urlSearch);
+    }
+  }, [searchParams]);
 
   // Load products
   useEffect(() => {
