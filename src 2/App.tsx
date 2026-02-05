@@ -5,7 +5,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
-// Context Provider
+// Context Providers - USAR EL CORRECTO con traducciones
 import { LanguageProvider } from './context/LanguageContext';
 
 // Layout

@@ -5,8 +5,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
-// Context Providers
-import { LanguageProvider } from './components/LanguageSelector';
+// Context Providers - USAR EL CORRECTO con traducciones
+import { LanguageProvider } from './context/LanguageContext';
 
 // Layout
 import TopBar from './sections/TopBar';
@@ -37,7 +37,7 @@ import {
 
 function App() {
   return (
-    <LanguageProvider defaultLanguage="es">
+    <LanguageProvider>
       <Router>
         <div className="min-h-screen bg-white flex flex-col">
           {/* Top Bar con selector de idioma */}
